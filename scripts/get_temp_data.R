@@ -7,6 +7,7 @@
 #==================================================================================
 
 library(tidyverse)
+library(lubridate)
 
 #load data-------
 
@@ -54,8 +55,49 @@ ggplot(esp_temps_long, aes(Year, temp)) + geom_point() + geom_line() +
 
 #GAK1====
 
+#TIME SERIES
 GAK1_dat <- read.csv("http://research.cfos.uaf.edu/gak1/data/TimeSeries/gak1.csv")
 GAK1_dat <- GAK1_dat[-c(1:2),] #trim metadata
 #this dataset includes multiple stations along seward line not just GAK1
 
-GAK_temp <- GAK1_dat[,c()]
+GAK1_dat$Temp <- as.numeric(GAK1_dat$Temp)
+GAK1_dat$Depth <- as.numeric(GAK1_dat$Depth)
+
+#need to figure out what's going on with date/years
+
+GAK1_dat$date <- format(date_decimal(as.numeric(GAK1_dat$Year)), "%d-%m-%Y")
+
+GAK1_dat <- GAK1_dat %>% dplyr::mutate(year = lubridate::year(date), 
+                month = lubridate::month(date), 
+                day = lubridate::day(date))
+
+GAK1_dat <- GAK1_dat %>% dplyr::mutate(day = lubridate::day(date),
+                                       year = lubridate::year(date), 
+                                       month = lubridate::month(date))
+GAK1_dat <- GAK1_dat %>%
+  separate(date, c("day", "month", "year"), "-")
+
+GAK1_temp_st1 <- GAK1_dat[which(GAK1_dat$St==1),]
+
+ggplot(GAK1_temp_st1[which(GAK1_temp_st1$Depth==0),], aes(year, Temp)) + geom_point() + 
+  geom_line() + facet_wrap(~month)
+
+ggplot(GAK1_temp_st1[which(GAK1_temp_st1$Depth==30),], aes(year, Temp)) + geom_point() + 
+  geom_line() + facet_wrap(~month)
+#very sparse!
+
+ggplot(GAK1_temp_st1[which(GAK1_temp_st1$month=="06"),], aes(year, Temp)) + geom_point() + 
+  geom_line() + facet_wrap(~Depth)
+
+
+
+#OK let's download the mooring data going to be painful
+GAK1_dat <- read.csv("http://research.cfos.uaf.edu/gak1/data/Mooring/gak1_mooring_1998-1999.zip")
+
+
+
+
+
+
+
+
