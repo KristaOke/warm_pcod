@@ -138,13 +138,13 @@ sst_wide$mean_SST_jan_feb_mar <- sst_wide$jan_feb_mar
 sst_wide <- sst_wide[,c(1,6:9)]
 
 
-#join all datasets together======
+#join all data sets together======
 
+dat1 <- left_join(sst_wide, MHWIdat, by=join_by(year == Year))
+dat2 <- left_join(dat1, esp_temps, by=join_by(year == Year))
+dat3 <- left_join(dat2, cfsr_jun_devs_wide, by=join_by(year == Year))
 
-
-
-
-
+write.csv(dat3,paste0(wd,"/data/temp_metrics_dataset.csv"),row.names=F)
 
 
 
