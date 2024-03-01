@@ -523,3 +523,32 @@ write.csv(MHWI,"MHWI.csv",row.names=F)
 # 
 
 
+
+
+#SST calculation for warm_pcod============================================================
+
+#added by Krista to get monthly SSTs
+
+meanSST_2edit <- meanSST %>% dplyr::mutate(year = lubridate::year(day1), 
+                                           month = lubridate::month(day1), 
+                                           day = lubridate::day(day1))
+
+monthlymeanSST <- meanSST_2edit %>% group_by(year, month) %>%
+                    summarise(monthly_mean=mean(SST, na.rm=TRUE))
+
+monthlymeanSST <- monthlymeanSST
+monthlymeanSST$season <- NA
+monthlymeanSST$season[which(monthlymeanSST$month==1|monthlymeanSST$month==2|monthlymeanSST$month==3)] <- "jan_feb_mar"
+monthlymeanSST$season[which(monthlymeanSST$month==4|monthlymeanSST$month==5|monthlymeanSST$month==6)] <- "apr_may_jun"
+monthlymeanSST$season[which(monthlymeanSST$month==7|monthlymeanSST$month==8|monthlymeanSST$month==9)] <- "jun_aug_sep"
+monthlymeanSST$season[which(monthlymeanSST$month==10|monthlymeanSST$month==11|monthlymeanSST$month==12)] <- "oct_nov_dec"
+
+seasonalmeanSST <- monthlymeanSST %>% group_by(year, season) %>%
+  summarise(seasonal_mean=mean(monthly_mean, na.rm=TRUE))
+
+write.csv(seasonalmeanSST,"seasonalmeanSST.csv",row.names=F)
+
+
+
+
+
