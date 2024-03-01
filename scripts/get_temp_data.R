@@ -37,6 +37,18 @@ cfsr_jun_devs <- cfsr_join
 
 ggplot(cfsr_jun_devs, aes(Year, jun_temp_dev, col=size)) + geom_line() + geom_point()
 
+#pivot wider to match to other datasets
+
+cfsr_jun_devs_wide <- cfsr_jun_devs %>% pivot_wider(names_from = size, values_from = jun_temp_dev, -c(Month, temp, mean_june_early_temp))
+
+cfsr_jun_devs_wide$cfsr_jun_dev_0_20 <- cfsr_jun_devs_wide$X0.20
+cfsr_jun_devs_wide$cfsr_jun_dev_20_40 <- cfsr_jun_devs_wide$X20.40
+cfsr_jun_devs_wide$cfsr_jun_dev_40_60 <- cfsr_jun_devs_wide$X40.60
+cfsr_jun_devs_wide$cfsr_jun_dev_60_80 <- cfsr_jun_devs_wide$X60.80
+cfsr_jun_devs_wide$cfsr_jun_dev_80 <- cfsr_jun_devs_wide$X80.
+
+cfsr_jun_devs_wide <- cfsr_jun_devs_wide[,c(1,7:11)]
+
 #ESP temp indicators----
 wd <- getwd()
 esp_dat <- read.csv(paste(wd,"/data/goa_pcod_BAS_indicators_2023.csv",sep=""))
@@ -93,6 +105,47 @@ ggplot(GAK1_temp_st1[which(GAK1_temp_st1$month=="06"),], aes(year, Temp)) + geom
 
 #OK let's download the mooring data going to be painful
 GAK1_dat <- read.csv("http://research.cfos.uaf.edu/gak1/data/Mooring/gak1_mooring_1998-1999.zip")
+
+
+
+
+
+#grab csvs for SST and MHWI=============
+
+#these are created in 'CREAT_TEMPANDHEAT.r'
+
+MHWIdat <- read.csv(paste(wd, "/CENTRAL_GOA_HEATWAVE-main/", "MHWI.csv",sep=""))
+
+MHWIdat$annual_MHWI <- MHWIdat$Annual
+MHWIdat$summer_MHWI <- MHWIdat$Summer
+MHWIdat$winter_MHWI <- MHWIdat$Winter
+MHWIdat$spawning_MHWI <- MHWIdat$Spawning
+
+MHWIdat <- MHWIdat[,c(1,6:9)]
+
+
+seasonalmeanSST <- read.csv(paste(wd,  "/seasonalmeanSST.csv",sep=""))
+
+#pivot wider to match to other datasets
+
+sst_wide <- seasonalmeanSST %>% pivot_wider(names_from = season, values_from = seasonal_mean)
+
+sst_wide$mean_SST_jun_aug_sep <- sst_wide$jun_aug_sep
+sst_wide$mean_SST_oct_nov_dec <- sst_wide$oct_nov_dec
+sst_wide$mean_SST_apr_may_jun <- sst_wide$apr_may_jun
+sst_wide$mean_SST_jan_feb_mar <- sst_wide$jan_feb_mar
+
+sst_wide <- sst_wide[,c(1,6:9)]
+
+
+#join all datasets together======
+
+
+
+
+
+
+
 
 
 
