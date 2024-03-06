@@ -16,7 +16,7 @@ library(corrplot)
 wd <- getwd()
 joined_temp_dat <- read.csv(paste0(wd,"/data/temp_metrics_dataset.csv"))
 
-scaled_dat <- joined_temp_dat %>%
+scaled_dat <- joined_temp_dat %>%     #UPDATE HERE when all indices are in hand IMPORTANT
   mutate(mean_SST_jun_aug_sep_scaled=scale(mean_SST_jun_aug_sep),
          mean_SST_oct_nov_dec_scaled=scale(mean_SST_oct_nov_dec),
          mean_SST_apr_may_jun_scaled=scale(mean_SST_apr_may_jun),
@@ -32,11 +32,12 @@ scaled_dat <- joined_temp_dat %>%
          cfsr_jun_dev_20_40_scaled=scale(cfsr_jun_dev_20_40),
          cfsr_jun_dev_40_60_scaled=scale(cfsr_jun_dev_40_60),
          cfsr_jun_dev_60_80_scaled=scale(cfsr_jun_dev_60_80),
-         cfsr_jun_dev_80_scaled=scale(cfsr_jun_dev_80))
+         cfsr_jun_dev_80_scaled=scale(cfsr_jun_dev_80),
+         Summer_Temperature_Bottom_GOA_Survey_scaled=scale(Summer_Temperature_Bottom_GOA_Survey))
 
 #plot=======
 
-scaled_long <- scaled_dat[,c(1,18:33)] %>% pivot_longer(-year, names_to = "metric", values_to = "temp_value")
+scaled_long <- scaled_dat[,c(1,19:35)] %>% pivot_longer(-year, names_to = "metric", values_to = "temp_value")
 
 ggplot(scaled_long, aes(year, temp_value)) + geom_line() + facet_wrap(~metric, scale="free")
 
@@ -44,7 +45,7 @@ ggplot(scaled_long, aes(year, temp_value, col=metric)) + geom_line()
 
 #corrs=======
 #temp.cov <- data.frame(t(scaled_dat[,c(18:26, 28:33)]))
-temp.cov <- scaled_dat[,c(18:26, 28:33)]
+temp.cov <- scaled_dat[,c(19:27, 29:35)]
 temp.cov <- na.omit(temp.cov) 
 
 cov.cor <- cor(temp.cov)
@@ -54,7 +55,7 @@ corrplot(cov.cor,order='AOE',  type = 'lower', method = 'number')
 
 #manupulate data for DFA========
 
-scaled_dat1 <- scaled_dat[,c(1,18:33)] #only scaled cols
+scaled_dat1 <- scaled_dat[,c(1,19:35)] #only scaled cols, update when all cols are in hand
 
 scaled_dat1 <- scaled_dat1[order(scaled_dat1$year),] #otherwise model runs out of order!
 
@@ -73,7 +74,7 @@ s.mat <- s.mat[-1,]
 # now fit DFA models with 1-3 trends and different error structures and compare
 
 # changing convergence criterion to ensure convergence
-cntl.list = list(minit=200, maxit=20000, allow.degen=FALSE, conv.test.slope.tol=0.1, abstol=0.0001)
+cntl.list = list(minit=200, maxit=50000, allow.degen=FALSE, conv.test.slope.tol=0.1, abstol=0.0001)
 
 # set up forms of R matrices
 levels.R = c("diagonal and equal",
@@ -84,7 +85,7 @@ model.data = data.frame()
 
 # fit models & store results
 for(R in levels.R) {
-  for(m in 1:4) {  # allowing up to 3 trends
+  for(m in 1:3) {  # allowing up to 3 trends
     dfa.model = list(A="zero", R=R, m=m)
     kemz = MARSS(s.mat, model=dfa.model, control=cntl.list,
                  form="dfa", z.score=TRUE)
@@ -105,15 +106,16 @@ model.data <- model.data %>%
   arrange(dAICc)
 model.data
 
-#diagonal and unequal 2 and 3 VERY close as best
+#diagonal and unequal 3 best, unconstrained not converging
 
 #rotate=======
 
 # now fit best model
 
-model.list.1 = list(A="zero", m=2, R="diagonal and unequal") # best model by a little
-model.1 = MARSS(s.mat, model=model.list.1, z.score=TRUE, form="dfa", control=cntl.list1)
+model.list.1 = list(A="zero", m=3, R="diagonal and unequal") # 
 cntl.list1 = list(minit=200, maxit=10000, allow.degen=FALSE, conv.test.slope.tol=0.1, abstol=0.0001)
+model.1 = MARSS(s.mat, model=model.list.1, z.score=TRUE, form="dfa", control=cntl.list1) #CONV ISSUES
+
 
 
 # and rotate the loadings
@@ -153,7 +155,7 @@ rec.plot <- ggplot(Z.rot, aes(names, value, fill=key)) + geom_bar(stat="identity
 
 #based on nwfsc-timeseries.github.io
 
-yr_frst <- 1977
+yr_frst <- 1981
 
 ## get number of time series
 N_ts <- dim(s.mat)[1]
@@ -170,12 +172,12 @@ Z_rot = Z_est %*% H_inv
 ## rotate processes
 proc_rot = solve(H_inv) %*% model.1$states
 
-mm <- 2 #4 processes
+mm <- 3 #3 processes
 
 rec_names <- rownames(s.mat)
 ylbl <- rec_names
 w_ts <- seq(dim(s.mat)[2])
-layout(matrix(c(1, 2, 3, 4), mm, 2), widths = c(2, 1))
+layout(matrix(c(1, 2, 3,4,5,6), mm, 2), widths = c(2, 1))
 ## par(mfcol=c(mm,2), mai=c(0.5,0.5,0.5,0.1), omi=c(0,0,0,0))
 # jpeg("figs/ugly_DFA_trends_loadings.jpg")
 par(mfcol=c(mm,2), mar = c(1.3,1.3,1.3,1.3), omi = c(0.1, 0.1, 0.1, 0.1))
@@ -194,7 +196,7 @@ for (i in 1:mm) {
   ## add panel labels
   mtext(paste("State", i), side = 3, line = 0.5)
   #axis(1, 12 * (0:dim(all.clim.dat)[2]) + 1, yr_frst + 0:dim(all.clim.dat)[2])
-  axis(1, 1:47, yr_frst + 0:dim(s.mat)[2])
+  axis(1, 1:44, yr_frst + 0:dim(s.mat)[2])
 }
 ## plot the loadings
 clr <- c("brown", 
@@ -236,10 +238,11 @@ ccf(proc_rot[1, ], proc_rot[2, ], lag.max = 12, main = "")
 
 # now fit second best model
 
-model.list.2 = list(A="zero", m=3, R="diagonal and unequal") # second best model
-model.2 = MARSS(s.mat, model=model.list.2, z.score=TRUE, form="dfa", control=cntl.list2)
-#DOES NOT CONVERGE bump up to 40K iter
+model.list.2 = list(A="zero", m=2, R="diagonal and unequal") # second best model
 cntl.list2 = list(minit=200, maxit=10000, allow.degen=FALSE, conv.test.slope.tol=0.1, abstol=0.0001)
+model.2 = MARSS(s.mat, model=model.list.2, z.score=TRUE, form="dfa", control=cntl.list2)
+
+
 
 
 # and rotate the loadings
@@ -278,7 +281,7 @@ rec.plot <- ggplot(Z.rot, aes(names, value, fill=key)) + geom_bar(stat="identity
 
 #based on nwfsc-timeseries.github.io
 
-yr_frst <- 1977
+yr_frst <- 1981
 
 ## get number of time series
 N_ts <- dim(s.mat)[1]
@@ -295,12 +298,12 @@ Z_rot = Z_est %*% H_inv
 ## rotate processes
 proc_rot = solve(H_inv) %*% model.2$states
 
-mm <- 3 #processes
+mm <- 2 #processes
 
 rec_names <- rownames(s.mat)
 ylbl <- rec_names
 w_ts <- seq(dim(s.mat)[2])
-layout(matrix(c(1, 2, 3, 4, 5, 6), mm, 2), widths = c(2, 1))
+layout(matrix(c(1, 2, 3, 4), mm, 2), widths = c(2, 1))
 ## par(mfcol=c(mm,2), mai=c(0.5,0.5,0.5,0.1), omi=c(0,0,0,0))
 # jpeg("figs/ugly_DFA_trends_loadings.jpg")
 par(mfcol=c(mm,2), mar = c(1,1,1,1), omi = c(0, 0, 0, 0))
@@ -318,7 +321,7 @@ for (i in 1:mm) {
   ## add panel labels
   mtext(paste("State", i), side = 3, line = 0.5)
   #axis(1, 12 * (0:dim(all.clim.dat)[2]) + 1, yr_frst + 0:dim(all.clim.dat)[2])
-  axis(1, 1:47, yr_frst + 0:dim(s.mat)[2])
+  axis(1, 1:44, yr_frst + 0:dim(s.mat)[2])
 }
 ## plot the loadings
 clr <- c("brown", 
