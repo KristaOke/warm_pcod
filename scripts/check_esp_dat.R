@@ -26,6 +26,10 @@ sblwide <- pivot_wider(sbltbl[,c(1:3)], names_from = INDICATOR_NAME, values_from
 
 colnames(sblwide)
 
+goa_LL_temp <- sblwide[c("YEAR", "Summer_Temperature_250m_GOA_Survey")]
+write.csv(goa_LL_temp,file=paste0(wd, "/data/", "ESP_goa_LL_temp.csv", sep=""),row.names=F)
+
+
 
 #GOA pollock----
 AKesp::esp_stock_options() #look at stocks and pick one
