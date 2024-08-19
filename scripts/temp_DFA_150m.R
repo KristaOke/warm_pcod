@@ -34,9 +34,13 @@ scaled_long <- scaled_dat[,c(1,7:11)] %>% pivot_longer(-year, names_to = "metric
 
 ggplot(scaled_long, aes(year, temp_value)) + geom_line() + facet_wrap(~metric, scale="free")
 
-ggplot(scaled_long, aes(year, temp_value, col=metric)) + geom_line() + geom_point()
+ggplot(scaled_long, aes(year, temp_value, col=metric)) + geom_line() + 
+  geom_point() + theme_bw()
 
+unscaled_long <- scaled_dat[,c(1:6)] %>% pivot_longer(-year, names_to = "metric", values_to = "temp_value")
 
+ggplot(unscaled_long, aes(year, temp_value, col=metric)) + geom_line() + 
+  geom_point() + theme_bw()
 
 #corrs=======
 temp.cov <- scaled_dat[,c(7:11)]
@@ -101,16 +105,20 @@ model.data <- model.data %>%
   arrange(dAICc)
 model.data
 
+saveRDS(model.data, file="data/model_data_DFA_150m.RDS")
+
+model.data <- readRDS(file="data/model_data_DFA_150m.RDS")
+
 #diagonal and unequal 3 best, unconstrained not converging
 
 #rotate=======
 
 # now fit best model
 
-model.list.1 = list(A="zero", m=1, R="unconstrained") # 
+model.list.1 = list(A="zero", m=1, R="equalvarcov") # 
 cntl.list1 = list(minit=200, maxit=100000, allow.degen=FALSE, conv.test.slope.tol=0.1, abstol=0.0001)
 model.1 = MARSS(s.mat, model=model.list.1, z.score=TRUE, form="dfa", control=cntl.list1) #CONV ISSUES
-
+autoplot(model.1)
 
 
 # and rotate the loadings
@@ -337,10 +345,10 @@ for (i in 1:N_ts) {
 
 # now fit second best model
 
-model.list.2 = list(A="zero", m=2, R="unconstrained") # second best model
+model.list.2 = list(A="zero", m=2, R="equalvarcov") # second best model
 cntl.list2 = list(minit=200, maxit=200000, allow.degen=FALSE, conv.test.slope.tol=0.1, abstol=0.0001)
 model.2 = MARSS(s.mat, model=model.list.2, z.score=TRUE, form="dfa", control=cntl.list2)
-#CONVERGENCE ISSUES
+autoplot(model.2)
 
 
 
@@ -380,7 +388,7 @@ rec.plot <- ggplot(Z.rot, aes(names, value, fill=key)) + geom_bar(stat="identity
 
 #based on nwfsc-timeseries.github.io
 
-yr_frst <- 1979
+yr_frst <- 1993
 
 ## get number of time series
 N_ts <- dim(s.mat)[1]
@@ -420,7 +428,7 @@ for (i in 1:mm) {
   ## add panel labels
   mtext(paste("State", i), side = 3, line = 0.5)
   #axis(1, 12 * (0:dim(all.clim.dat)[2]) + 1, yr_frst + 0:dim(all.clim.dat)[2])
-  axis(1, 1:46, yr_frst + 0:dim(s.mat)[2])
+  axis(1, 1:29, yr_frst + 0:dim(s.mat)[2])
 }
 ## plot the loadings
 clr <- c("brown", 

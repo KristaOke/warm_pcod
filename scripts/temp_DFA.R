@@ -33,19 +33,33 @@ scaled_dat <- joined_temp_dat %>%     #UPDATE HERE when all indices are in hand 
          cfsr_jun_dev_40_60_scaled=scale(cfsr_jun_dev_40_60),
          cfsr_jun_dev_60_80_scaled=scale(cfsr_jun_dev_60_80),
          cfsr_jun_dev_80_scaled=scale(cfsr_jun_dev_80),
-         Summer_Temperature_Bottom_GOA_Survey_scaled=scale(Summer_Temperature_Bottom_GOA_Survey))
+         Summer_Temperature_Bottom_GOA_Survey_scaled=scale(Summer_Temperature_Bottom_GOA_Survey),
+         Summer_Temperature_250m_GOA_Survey_scaled=scale(Summer_Temperature_250m_GOA_Survey))
 
 #plot=======
 
-scaled_long <- scaled_dat[,c(1,19:35)] %>% pivot_longer(-year, names_to = "metric", values_to = "temp_value")
+scaled_long <- scaled_dat[,c(1,20:37)] %>% pivot_longer(-year, names_to = "metric", values_to = "temp_value")
+unscaled_long <- scaled_dat[,c(1:19)] %>% pivot_longer(-year, names_to = "metric", values_to = "temp_value")
+
 
 ggplot(scaled_long, aes(year, temp_value)) + geom_line() + facet_wrap(~metric, scale="free")
 
 ggplot(scaled_long, aes(year, temp_value, col=metric)) + geom_line()
 
+ggplot(scaled_long[which(scaled_long$metric=="cfsr_jun_dev_0_20_scaled"|
+                           #scaled_long$metric=="cfsr_jun_dev_20_40_scaled"|
+                           scaled_long$metric=="cfsr_jun_dev_40_60_scaled"|
+                           #scaled_long$metric=="cfsr_jun_dev_60_80_scaled"|
+                           #scaled_long$metric=="cfsr_jun_dev_80_scaled"|
+                          # scaled_long$metric=="Summer_Temperature_Bottom_GOA_Model_scaled"|
+                           scaled_long$metric=="Summer_Temperature_Bottom_GOA_Survey_scaled"|
+                           scaled_long$metric=="Summer_Temperature_250m_GOA_Survey_scaled"),], aes(year, temp_value, col=metric)) + geom_line() + geom_point()
+
+ggplot(unscaled_long, aes(year, temp_value, col=metric)) + geom_line()
+
 #corrs=======
 #temp.cov <- data.frame(t(scaled_dat[,c(18:26, 28:33)]))
-temp.cov <- scaled_dat[,c(19:27, 29:35)]
+temp.cov <- scaled_dat[,c(20:28, 30:37)]
 temp.cov <- na.omit(temp.cov) 
 
 cov.cor <- cor(temp.cov)
@@ -55,7 +69,11 @@ corrplot(cov.cor,order='AOE',  type = 'lower', method = 'number')
 
 #manupulate data for DFA========
 
-scaled_dat1 <- scaled_dat[,c(1,19:35)] #only scaled cols, update when all cols are in hand
+scaled_dat1 <- scaled_dat[,c(1,20:28, 30:37)] #only scaled cols, update when all cols are in hand
+#dropping habitat suitablity
+
+#FOR NOW also drop some cfsr series and the model bottom temp
+scaled_dat1 <- scaled_dat[,c(1,20:23, 25:27, 31, 33, 36:37)]
 
 scaled_dat1 <- scaled_dat1[order(scaled_dat1$year),] #otherwise model runs out of order!
 
@@ -113,7 +131,7 @@ model.data
 # now fit best model
 
 model.list.1 = list(A="zero", m=3, R="diagonal and unequal") # 
-cntl.list1 = list(minit=200, maxit=10000, allow.degen=FALSE, conv.test.slope.tol=0.1, abstol=0.0001)
+cntl.list1 = list(minit=200, maxit=100000, allow.degen=FALSE, conv.test.slope.tol=0.1, abstol=0.0001)
 model.1 = MARSS(s.mat, model=model.list.1, z.score=TRUE, form="dfa", control=cntl.list1) #CONV ISSUES
 
 

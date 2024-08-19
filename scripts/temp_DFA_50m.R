@@ -26,7 +26,7 @@ scaled_dat <- wide_50_dat %>%     #UPDATE HERE when all indices are in hand IMPO
          AFSC_BTS_scaled=scale(AFSC_BTS),
          AFSC_LLS_scaled=scale(AFSC_LLS),
          IPHC_FISS_scaled=scale(IPHC_FISS),
-         GAK1_mooring_40m_to_60m_scaled=scale(GAK1_mooring_40m_to_60m))
+         GAK1_mooring_40m_to_60m_scaled=scale(GAK1_mooring_40m_to_60m)) #GAK data is missing
 
 #plot=======
 
@@ -34,8 +34,13 @@ scaled_long <- scaled_dat[,c(1,8:13)] %>% pivot_longer(-year, names_to = "metric
 
 ggplot(scaled_long, aes(year, temp_value)) + geom_line() + facet_wrap(~metric, scale="free")
 
-ggplot(scaled_long, aes(year, temp_value, col=metric)) + geom_line() + geom_point()
+ggplot(scaled_long[which(scaled_long$year>1990),], aes(year, temp_value, col=metric)) + geom_line() + 
+  geom_point() + theme_bw()
 
+unscaled_long <- scaled_dat[,c(1:7)] %>% pivot_longer(-year, names_to = "metric", values_to = "temp_value")
+
+ggplot(unscaled_long[which(unscaled_long$year>1990),], aes(year, temp_value, col=metric)) + geom_line() + 
+  geom_point() + theme_bw()
 
 
 #corrs=======
@@ -337,10 +342,10 @@ for (i in 1:N_ts) {
 
 # now fit second best model
 
-model.list.2 = list(A="zero", m=2, R="unconstrained") # second best model
+model.list.2 = list(A="zero", m=2, R="equalvarcov") # second best model
 cntl.list2 = list(minit=200, maxit=200000, allow.degen=FALSE, conv.test.slope.tol=0.1, abstol=0.0001)
 model.2 = MARSS(s.mat, model=model.list.2, z.score=TRUE, form="dfa", control=cntl.list2)
-#CONVERGENCE ISSUES
+#
 
 
 

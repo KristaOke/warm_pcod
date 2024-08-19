@@ -34,9 +34,13 @@ scaled_long <- scaled_dat[,c(1,8:13)] %>% pivot_longer(-year, names_to = "metric
 
 ggplot(scaled_long, aes(year, temp_value)) + geom_line() + facet_wrap(~metric, scale="free")
 
-ggplot(scaled_long, aes(year, temp_value, col=metric)) + geom_line() + geom_point()
+ggplot(scaled_long[which(scaled_long$year>1990),], aes(year, temp_value, col=metric)) + geom_line() + 
+  geom_point() + theme_bw()
 
+unscaled_long <- scaled_dat[,c(1:7)] %>% pivot_longer(-year, names_to = "metric", values_to = "temp_value")
 
+ggplot(unscaled_long[which(unscaled_long$year>1990),], aes(year, temp_value, col=metric)) + geom_line() + 
+  geom_point() + theme_bw()
 
 #corrs=======
 temp.cov <- scaled_dat[,c(8:13)]
@@ -101,7 +105,9 @@ model.data <- model.data %>%
   arrange(dAICc)
 model.data
 
-#diagonal and unequal 3 best, unconstrained not converging
+saveRDS(model.data, file="data/model_data_DFA_100m.RDS")
+
+
 
 #rotate=======
 
@@ -110,7 +116,7 @@ model.data
 model.list.1 = list(A="zero", m=1, R="unconstrained") # 
 cntl.list1 = list(minit=200, maxit=100000, allow.degen=FALSE, conv.test.slope.tol=0.1, abstol=0.0001)
 model.1 = MARSS(s.mat, model=model.list.1, z.score=TRUE, form="dfa", control=cntl.list1) #CONV ISSUES
-
+autoplot(model.1)
 
 
 # and rotate the loadings
@@ -337,10 +343,11 @@ for (i in 1:N_ts) {
 
 # now fit second best model
 
-model.list.2 = list(A="zero", m=2, R="unconstrained") # second best model
+model.list.2 = list(A="zero", m=1, R="equalvarcov") # second best model
 cntl.list2 = list(minit=200, maxit=200000, allow.degen=FALSE, conv.test.slope.tol=0.1, abstol=0.0001)
 model.2 = MARSS(s.mat, model=model.list.2, z.score=TRUE, form="dfa", control=cntl.list2)
-#CONVERGENCE ISSUES
+autoplot(model.2)
+
 
 
 
@@ -557,10 +564,21 @@ for (i in 1:N_ts) {
 
 
 
+#ANOVAs & GAMs=======
+
+#are indices significantly different?
+
+#use scaled_dat or scaled_long
+scaled_long$metric <- as.factor(scaled_long$metric)
+scaled_long_df <- as.data.frame(scaled_long)
+scaled_long_df$metric <- as.factor(scaled_long_df$metric)
+
+scaled_long_df <- na.omit(scaled_long_df)
+
+gam100_1 <- gam(temp_value ~ s(metric, by=year, k=5), data=scaled_long_df) #too few df
 
 
-
-
+anova(lm(temp_value ~ metric, data=scaled_long))
 
 
 
