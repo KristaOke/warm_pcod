@@ -11,6 +11,8 @@ library(lubridate)
 
 #load data-------
 
+#CFSR-------
+
 wd <- getwd()
 cfsrdat <- read.csv(paste(wd,"/data/cfsr_197901-202308.csv",sep=""))
 
@@ -529,6 +531,7 @@ MHWIdat$winter_MHWI <- MHWIdat$Winter
 MHWIdat$spawning_MHWI <- MHWIdat$Spawning
 
 MHWIdat <- MHWIdat[,c(1,6:9)]
+MHWIdat$depth <- 0
 
 
 seasonalmeanSST <- read.csv(paste(wd,  "/seasonalmeanSST.csv",sep=""))
@@ -543,6 +546,7 @@ sst_wide$mean_SST_apr_may_jun <- sst_wide$apr_may_jun
 sst_wide$mean_SST_jan_feb_mar <- sst_wide$jan_feb_mar
 
 sst_wide <- sst_wide[,c(1,6:9)]
+
 
 #ESP bottom temp data from survey=======
 
@@ -560,14 +564,21 @@ dat2 <- left_join(dat1, esp_temps, by=join_by(year == Year))
 dat3 <- left_join(dat2, cfsr_jun_devs_wide, by=join_by(year == Year))
 dat4 <- left_join(dat3, goa_bot_temp, by=join_by(year == YEAR))
 dat5 <- left_join(dat4, goa_LL_temp, by=join_by(year == YEAR))
+dat6 <- left_join(dat5, gak_summary)
 
-write.csv(dat5,paste0(wd,"/data/temp_metrics_dataset.csv"),row.names=F)
-
-
-
+write.csv(dat6,paste0(wd,"/data/temp_metrics_dataset.csv"),row.names=F)
 
 
+#plot for funsies======
+
+dat_wide <- pivot_longer(dat6, -c(year, season, spawning, depth, month, season_year), names_to="temp_type", values_to = "temp")
+
+ggplot(dat_wide, aes(year, temp, col=temp_type)) + geom_point() + geom_line()
 
 
+#seperate join only temp at depth========
 
+long1 <- left_join(cfsr_long, gak_summary, by=join_by("Year"=="year", "Month"=="month" ))
+
+write.csv(long1,paste0(wd,"/data/temp_depth_gak_cfsr_dataset.csv"),row.names=F)
 
