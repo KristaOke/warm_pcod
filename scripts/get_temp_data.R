@@ -636,6 +636,7 @@ goa_bot_temp <- read.csv(file=paste0(wd, "/data/", "ESP_goa_bot_temp.csv", sep="
 goa_LL_temp <- read.csv(file=paste0(wd, "/data/", "ESP_goa_LL_temp.csv", sep=""))
 
 
+
 #Survey observations=====================
 
 obs_goa <- readRDS(file=paste0(wd, "/data/goa_obs_w_depth.rds", sep=""))
@@ -752,6 +753,8 @@ ggplot(dat_wide, aes(year, temp, col=temp_type)) + geom_point() + geom_line()
 
 
 
+
+
 #INSTEAD match seperate dfs for monthly, seasonal, and spawn season means======
 #for GAK, CFSR, HYCOM
 #HERE ALSO FRIDAY
@@ -768,25 +771,25 @@ gak_summary$depth <- as.numeric(gak_summary$depth)
 cfsr_compare_dat <- cfsr_compare_dat[,-3] #drop size
 
 # cfsr_season_means
-
-cfsr_season_means <- cfsr_season_means[which(cfsr_season_means$size=="X0.20"|
-                                      cfsr_season_means$size=="X40.60"),]
-cfsr_season_means$depth <- NA
-cfsr_season_means$depth[which(cfsr_season_means$size=="X0.20")] <- "50m"
-cfsr_season_means$depth[which(cfsr_season_means$size=="X40.60")] <- "100m" #DOUBLECHECK W STEVE
-
-cfsr_season_means <- cfsr_season_means[,-3] #drop size
-
-# cfsr_sp_season_means
-
-cfsr_sp_season_means <- cfsr_sp_season_means[which(cfsr_sp_season_means$size=="X0.20"|
-                                               cfsr_sp_season_means$size=="X40.60"),]
-cfsr_sp_season_means$depth <- NA
-cfsr_sp_season_means$depth[which(cfsr_sp_season_means$size=="X0.20")] <- "50m"
-cfsr_sp_season_means$depth[which(cfsr_sp_season_means$size=="X40.60")] <- "100m" #DOUBLECHECK W STEVE
-
-cfsr_sp_season_means <- cfsr_sp_season_means[,-3] #drop size
-
+# 
+# cfsr_season_means <- cfsr_season_means[which(cfsr_season_means$size=="X0.20"|
+#                                       cfsr_season_means$size=="X40.60"),]
+# cfsr_season_means$depth <- NA
+# cfsr_season_means$depth[which(cfsr_season_means$size=="X0.20")] <- "50m"
+# cfsr_season_means$depth[which(cfsr_season_means$size=="X40.60")] <- "100m" #DOUBLECHECK W STEVE
+# 
+# cfsr_season_means <- cfsr_season_means[,-3] #drop size
+# 
+# # cfsr_sp_season_means
+# 
+# cfsr_sp_season_means <- cfsr_sp_season_means[which(cfsr_sp_season_means$size=="X0.20"|
+#                                                cfsr_sp_season_means$size=="X40.60"),]
+# cfsr_sp_season_means$depth <- NA
+# cfsr_sp_season_means$depth[which(cfsr_sp_season_means$size=="X0.20")] <- "50m"
+# cfsr_sp_season_means$depth[which(cfsr_sp_season_means$size=="X40.60")] <- "100m" #DOUBLECHECK W STEVE
+# 
+# cfsr_sp_season_means <- cfsr_sp_season_means[,-3] #drop size
+# 
 
 #join months
 
@@ -834,7 +837,7 @@ ggplot(months_long[which(months_long$Month=="6"),], aes(Year, temp, col=type)) +
 write.csv(month_combined,paste0(wd,"/data/monthly_temp_depth_gak_cfsr_hycom_surv_dataset.csv"),row.names=F)
 
 
-#join season #NOT UPDATED WITH NEW GAK YET
+#join season #NOT UPDATED WITH NEW GAK YET=====
 
 cfsr_season_means$depth <- as.character(cfsr_season_means$depth)
 
@@ -879,6 +882,7 @@ ggplot(sp_season_long[which(sp_season_long$spawning=="prespawning_season"),], ae
 ggplot(sp_season_long[which(sp_season_long$spawning=="not_spawning"),], aes(Year, temp, col=type)) + facet_wrap(~depth) + geom_point() + geom_line()
 
 
+
 #standardize=============================
 #z-score by month and depth
 
@@ -886,7 +890,7 @@ months_scaled <- month_combined %>% group_by(Month, depth) %>% #checked and work
   mutate_at(vars(cfsr_temp, gak_best_temp,            
  AFSC_BTS, AFSC_LLS, IPHC_FISS, mean_monthly), scale)
 
-#March 2025 - CHANGE how I am scaling to instead de-mean using mean up to 2012
+#March 2025 - CHANGED how I am scaling to instead de-mean using mean up to 2012
 
 months_demeaned <- month_combined %>% 
   group_by(Month, depth) %>%
