@@ -12,7 +12,7 @@ SCRIPTS READ ME
 Temperature data is loaded and manipulated in script get_temp_data.R
   HYCOM data should first be downloaded and manipulated
 
-Figure 4 created in cor_by_month.R
+Figures 3 and 4 created in cor_by_month.R
 
 
 
