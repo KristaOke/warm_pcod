@@ -134,6 +134,23 @@ p1 <- ggplot(plotdf, aes(colvars, fct_rev(rowvars))) +
   coord_fixed()
 ggsave(p1, filename=paste0(wd,"/figs/temp_metrics_", temp.month, "_verbose_gg_corr_plot_shortscale.svg"))
 
+p2 <- ggplot(plotdf, aes(colvars, fct_rev(rowvars))) +
+  geom_tile(colour="grey20", aes(fill=corr), 
+            size=0.5) +
+  #geom_point(aes(size=p.value, colour=cut(abs(corr), c(0, 0.01, 0.05, 1), include.lowest=TRUE)), pch=15) +
+  geom_text(aes(label=sprintf("%1.2f", corr)), position=position_nudge(y=0.2), 
+            size=3, colour="white") +
+  geom_text(aes(label=sprintf("%1.0f", n)), position=position_nudge(y=-0.2), 
+            size=3, colour="white") +
+  # geom_text(aes(label=paste0("(",sprintf("%1.2f", p.value),")")), position=position_nudge(y=-0.3), 
+  #           size=2.5, colour="white") +
+  scale_fill_gradient2(low="yellow", mid="red", high="blue", midpoint=0.5, limits=c(0,1), name="Correlation") +
+  scale_size_continuous(range=c(8,12)) +
+  labs(x="",y="") +
+  theme_classic() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  coord_fixed()
+ggsave(p2, filename=paste0(wd,"/figs/temp_metrics_", temp.month, "_verbose_gg_corr_plot_shortscale_nopval.svg"))
+
 write_csv(plotdf, file=paste0(wd,"/output/correlations/temp_metrics_", temp.month, "_corr_test_all_together.csv"))
 
        
