@@ -6,3 +6,6 @@ Krista Oke, FAST Lab, APU; contact: kristaoke@gmail.com;
 Pete Hulson, NOAA AFSC;
 Steve Barbeaux, NOAA AFSC;
 Brad Harris, FAST Lab, APU
+
+Information on which scripts are used for each analysis and figure can be found in the README in the scripts folder.
+
