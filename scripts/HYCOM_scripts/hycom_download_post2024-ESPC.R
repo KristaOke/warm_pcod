@@ -8,6 +8,8 @@ library(akgfmaps)
 library(beepr)
 library(data.table)
 
+#Path names not relational, future users will need to update
+
 # functions ----
 
 # # Function to get url
