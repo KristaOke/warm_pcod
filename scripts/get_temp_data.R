@@ -136,6 +136,8 @@ hycom_month <- read.csv(paste(wd,"/data/hycom_monthly_means.csv",sep=""))
 
 #Survey observations=====================
 
+# ORIGINAL CODE - raw data too big to archive, 
+#if working with archived data please skip down to next comment or contact
 obs_goa <- readRDS(file=paste0(wd, "/data/goa_obs_w_depth.rds", sep=""))
 
 obs_goa <- obs_goa %>%
@@ -145,8 +147,6 @@ obs_goa <- obs_goa[which(obs_goa$bot_dep<201),]
 
 ggplot(obs_goa[which(obs_goa$bot_dep<200),], aes(longitude,latitude,  col=source)) + 
   geom_point() + facet_wrap(~month)
-
-#lot of depths, look like casts, take range or only exact?
 
 obs50 <- obs_goa[which(obs_goa$depth==50),]
 obs100 <- obs_goa[which(obs_goa$depth==100),]
@@ -159,6 +159,15 @@ obs150_table <- table(obs150$year, obs150$month, obs150$source)
 write.csv(obs50_table, paste0(wd,"/data/table_observations_50m.csv"),row.names=F)
 write.csv(obs100_table, paste0(wd,"/data/table_observations_100m.csv"),row.names=F)
 write.csv(obs150_table, paste0(wd,"/data/table_observations_150m.csv"),row.names=F)
+
+saveRDS(obs50, paste0(wd,"/data/goa_observations_50m.rds"))
+saveRDS(obs100, paste0(wd,"/data/goa_observations_100m.rds"))
+saveRDS(obs150, paste0(wd,"/data/goa_observations_150m.rds"))
+
+# TO REPRODUCE THIS SCRIPT WITH ARCHIVED DATA START HERE
+obs50 <-readRDS(obs50, paste0(wd,"/data/goa_observations_50m.rds"))
+obs100 <-readRDS(obs100, paste0(wd,"/data/goa_observations_100m.rds"))
+obs150 <-readRDS(obs150, paste0(wd,"/data/goa_observations_150m.rds"))
 
 #trying to plot
 
