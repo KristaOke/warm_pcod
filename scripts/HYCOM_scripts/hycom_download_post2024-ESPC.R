@@ -118,7 +118,7 @@ dates <- dates[seq(1, length(dates), 3)] #every THIRD day
 #Run 2015-01-01 - 2019-12-31 every 3 days, done
 #Run 2005-01-01 - 2014-12-31 every 3 days, had to restart at 2005-10-31 and 2008-02-12 and
 #2010-05-05
-#ran as far as 2012-01-04 , then to 2012-08-01 COME BACK TO THIS
+#ran as far as 2012-01-04 , then to 2012-08-01 
 #running 1995-01-01 - 2004-12-31, stopped at 1995-04-16
 #stopped at 1999-12-30
 #running from 2012, stopped at 2013-07-09
