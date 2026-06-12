@@ -124,8 +124,8 @@ combo_sub <- combo[which(combo$depth=="50"|combo$depth=="100"|combo$depth=="150"
 
 
 wd <- getwd()
-hycom_season <- read.csv(paste(wd,"/data/hycom_season_means.csv",sep=""))
-hycom_spawn <- read.csv(paste(wd,"/data/hycom_spawnseason_means.csv",sep=""))
+#hycom_season <- read.csv(paste(wd,"/data/hycom_season_means.csv",sep=""))
+#hycom_spawn <- read.csv(paste(wd,"/data/hycom_spawnseason_means.csv",sep=""))
 hycom_month <- read.csv(paste(wd,"/data/hycom_monthly_means.csv",sep=""))
 
 
