@@ -10,8 +10,15 @@ Brad Harris, FAST Lab, APU
 SCRIPTS READ ME
 
 Temperature data is loaded and manipulated in script get_temp_data.R
-  HYCOM data should first be downloaded and manipulated in HYCOM_scripts/hycom_download_post2024-ESPC.R
-  Observational data should first be manipulated in HYCOM_scripts/goa_obs.R
+  Data to run analyses is archived but raw temperature data is often too large to archive.
+  To rerun analyses, use archived data provided with manuscript.
+  Raw data processing performed in:
+  --HYCOM_scripts/hycom_download_post2024-ESPC.R
+  --- HYCOM data is available publicly and can be downloaded following this script
+  --HYCOM_scripts/goa_obs.R
+  --- GOA survey observations
+
+Stock assessment model files are in folder scripts/Assessment_scripts
 
 Figures 3 and 4 created in cor_by_month.R
 
