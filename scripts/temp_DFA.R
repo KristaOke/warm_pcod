@@ -150,6 +150,11 @@ write_csv(cortest_p, file=paste0(wd,"/output/temp_metrics_corr_test_pvals.csv"))
 write_csv(cortest_n, file=paste0(wd,"/output/temp_metrics_corr_test_samplesizes.csv"))
 write_csv(cortest_r, file=paste0(wd,"/output/temp_metrics_corr_test_corrs.csv"))
 
+cortest_p <- read_csv(file=paste0(wd,"/output/temp_metrics_corr_test_pvals.csv"))
+cortest_n <- read_csv(file=paste0(wd,"/output/temp_metrics_corr_test_samplesizes.csv"))
+cortest_r <- read_csv(file=paste0(wd,"/output/temp_metrics_corr_test_corrs.csv"))
+
+
 corrplot(cortest$r, p.mat=cortest$p, method="number")
 
 corrplot(cortest$r, order = 'AOE', method="number", type = 'upper', tl.pos = 'd')
